@@ -11,10 +11,14 @@ class TodoBase(BaseModel):
 
 class TodoCreate(TodoBase):
     """Схема для создания задачи"""
-    title: str = Field(..., example="Сходить за покупками")
-    description: Optional[str] = Field(
-        None, example="Молоко, хлеб, каша",
-        max_length=500
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "title": "Сходить за покупками",
+                "description": "Молоко, хлеб, каша",
+                "status": False
+            }
+        }
     )
 
 

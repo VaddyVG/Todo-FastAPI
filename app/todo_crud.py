@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.todo_model import Todo
 from sqlalchemy.future import select
 from typing import List, Optional
-from datetime import datetime, timezone
 from app.schema.todo_schema import TodoCreate, TodoUpdate
 
 
@@ -45,9 +44,13 @@ async def update_todo(db: AsyncSession, todo_id: int, todo_data: TodoUpdate) -> 
     todo = await get_todo(db, todo_id)
 
     update_data = todo_data.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(todo, field, value)
-    
+    if not update_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields provided for update"
+        )
+    todo.update_from_dict(update_data)
+
     await db.commit()
     await db.refresh(todo)
     return todo
