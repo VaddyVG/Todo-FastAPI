@@ -26,3 +26,11 @@ async def create_todo(todo: TodoCreate, db=Depends(get_db)):
 @router.patch("/{todo_id}", response_model=Todo)
 async def update_todo(todo_id: int, todo: TodoUpdate, db=Depends(get_db)):
     return await todo_crud.update_todo(db, todo_id, todo)
+
+
+@router.delete("/{todo_id}",
+               status_code=status.HTTP_200_OK,
+               summary="Delete todo",
+               response_description="Successful deletion message")
+async def delete_todo(todo_id: int, db=Depends(get_db)) -> dict:
+    return await todo_crud.delete_todo(db, todo_id)
