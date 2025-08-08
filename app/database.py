@@ -49,9 +49,15 @@ async def get_db():
     async with AsyncSessionLocal() as session:
         try:
             yield session
-            await session.commit()
-        except Exception:
+        except Exception as e:
+            logger.error(f"DB transaction failed: {e}", exc_info=True)
             await session.rollback()
             raise
         finally:
-            await session.close()
+            # commit в finally — чтобы при yield мы могли модифицировать данные
+            try:
+                await session.commit()
+            except Exception as e:
+                logger.error(f"Commit failed: {e}", exc_info=True)
+                await session.rollback()
+                raise
